@@ -14,6 +14,5 @@ if __name__ == '__main__':
     device = ActiveTwo(host='127.0.0.1', sfreq=512, port=778, nchannels=64, tcpsamples=16)
 
     # read 30 seconds of signal and print out the data
-    for run in range(30):
-        rawdata = device.read(duration=1.0)
-        print(rawdata)
+    while(1):
+        device.read()
