@@ -11,7 +11,7 @@ https://batchloaf.wordpress.com/2014/01/17/real-time-analysis-of-data-from-biose
 
 import socket
 import numpy as np
-
+import matplotlib.pyplot as plt
 
 class ActiveTwo():
     """
@@ -58,7 +58,7 @@ class ActiveTwo():
         """
 
         # initialize final data array
-        rawdata = np.empty((0,32))
+        rawdata = np.empty((0,64))
 
         # The reader process will run until requested amount of data is collected
         samples = 0
@@ -81,9 +81,9 @@ class ActiveTwo():
                     offset = m * 3 * self.nchannels + (ch * 3)
 
                     # The 3 bytes of each sample arrive in reverse order
-                    sample = (ord(data[offset+2]) << 16)
-                    sample += (ord(data[offset+1]) << 8)
-                    sample += ord(data[offset])
+                    sample = (data[offset+2] << 16)
+                    sample += (data[offset+1] << 8)
+                    sample += data[offset]
 
                     # Store sample to signal buffer
                     signal_buffer[ch, m] = sample
@@ -93,8 +93,18 @@ class ActiveTwo():
 
             # transpose matrix so that rows are samples
             signal_buffer = np.transpose(signal_buffer)
+            print(signal_buffer)
 
             # add to the final dataset
             rawdata = np.concatenate((rawdata, signal_buffer), axis=0)
 
+        # Calculate DFT ("sp" stands for spectrum)
+        sp = np.fft.fft(np.transpose(rawdata)[0])
+        sp[0] = 0 # eliminate DC component
+        
+        # Plot spectrum
+        print("Plotting data")
+        plt.plot(sp.real)
+        plt.hold(False)
+        plt.show()
         return rawdata
